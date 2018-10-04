@@ -1,12 +1,11 @@
 # Cross-Site-Request-Forgery
 Preventing Cross-Site Request Forgery (CSRF) using synchronizer token pattern and double submit cookie pattern.
 
-# IT15019646
-
-# Language - php
+## IT15019646
 
 # Deployment
+Language - php
 Run files with apache web server.
 
-# user - sameera
-# pw - password
+## user - sameera
+## pw - password
