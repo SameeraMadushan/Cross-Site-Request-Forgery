@@ -4,8 +4,8 @@ Preventing Cross-Site Request Forgery (CSRF) using synchronizer token pattern an
 ## IT15019646
 
 # Deployment
-Language - php
-Run files with apache web server.
+- Language - php/javascript
+- Run files with apache web server.
 
 ## user - sameera
 ## pw - password
