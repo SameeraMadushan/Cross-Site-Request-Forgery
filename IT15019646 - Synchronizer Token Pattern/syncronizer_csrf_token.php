@@ -14,10 +14,6 @@ if (!$_SESSION["logedIn"]) {
         </div>';
 }
 
-//generate token and store it in session variable(memory)
-function generateToken(){
-    return $_SESSION['syncronizer_csrf_token'] = base64_encode(openssl_random_pseudo_bytes(32));
-}
 
 //validate whether retrieved token is same as the server token
 function validateToken($token){
@@ -83,7 +79,7 @@ if (isset($_POST['syncronizer_csrf_token']) && isset($_POST['account_number']) &
                         <div class="col-md-4">
                             <input type="number" class="form-control" name="amount" placeholder="00.00" required>
                             <!-- pass token with the hidden field value -->
-                            <input  type="hidden" class="form-control" name="syncronizer_csrf_token" value=<?php echo '"' . generateToken() . '"';?>>
+                            <input  type="hidden" class="form-control" id="syncronizer_csrf_token" name="syncronizer_csrf_token" value="token">
                         </div>
                     </div>
                         <div style="margin-top:10px" class="form-group">
@@ -99,4 +95,26 @@ if (isset($_POST['syncronizer_csrf_token']) && isset($_POST['account_number']) &
         </div>
     </div>
 </body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+   <script>
+      $(document).ready(function () {
+          $.ajax({
+              url: 'csrf_token.php',
+              type: 'post',
+              async: false,
+              data: {
+                  //pass login session to validate request with the server
+                  'csrf_request': '<?php echo $_SESSION["logedIn"] ?>'  
+              },
+              success: function (data) {
+                    //set returned token to hidden field value
+                  document.getElementById("syncronizer_csrf_token").value = data;
+                  $("#syncronizer_csrf_token").text(data);
+              },
+              error: function (xhr, ajaxOptions, thrownError) {
+                  console.log("Error on Ajax call :: " + xhr.responseText);
+              }
+          });
+      });
+   </script>
 </html>

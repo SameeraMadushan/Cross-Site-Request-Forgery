@@ -12,16 +12,8 @@ if (!$_SESSION["logedIn"]) {
                 </div>
             </div>';
     }
-
-//generate CSRF token when the request comes from the login page(on page loads)
-generateCSRFToken();
-
-//method for generate CSRF token
-function generateCSRFToken(){
-    //creating cookie with base64 encoded value, set time to 30 mins ahead and set root path as "/"
-    return setcookie("csrf_token", base64_encode(openssl_random_pseudo_bytes(32)), time() + 1800, "/");
-}
-
+//start the session
+session_start();
 //check form validations
 if (isset($_POST['double_sumbit_csrf_token']) && isset($_POST['account_number']) && isset($_POST['name']) && isset($_POST['amount'])) {
     //check validity of the token
@@ -49,67 +41,89 @@ function validateToken($token){
 ?>
 <!DOCTYPE html>
 <html>
+
 <head>
-<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
-<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+	<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+	<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+	<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
 </head>
+
 <body>
-    <div class="container">
-        <div class="panel panel-info" >
-            <div class="panel-heading">
-                <div class="panel-title">Fund Transfer</div>
-            </div>
-            <div style="padding-top:30px" class="panel-body" >
+	<div class="container">
+		<div class="panel panel-info">
+			<div class="panel-heading">
+				<div class="panel-title">Fund Transfer</div>
+			</div>
+			<div style="padding-top:30px" class="panel-body">
 
-                <div style="display:none" id="login-alert" class="alert alert-danger col-sm-12"></div>
-                <form id="changeForm" class="form-horizontal" role="form" method="post" action="double_sumbit_csrf_token.php">
-                    <div style="margin-bottom: 25px" class="form-group">
-                            <label class="col-md-4 control-label" for="textinput">Account Number</label> 
-                            <div class="col-md-4">
-                                <input type="number" class="form-control" name="account_number"  placeholder="15XXXXXXXXXX" required>
-                            </div>
-                        </div>
-                    <div style="margin-bottom: 25px" class="form-group">
-                        <label class="col-md-4 control-label" for="textinput">Name</label> 
-                        <div class="col-md-4">
-                            <input type="text" class="form-control" name="name" placeholder="" required>
-                        </div>
-                    </div>
-                    <div style="margin-bottom: 25px" class="form-group">
-                        <label class="col-md-4 control-label" for="textinput">Amount</label> 
-                        <div class="col-md-4">
-                            <input type="number" class="form-control" name="amount" placeholder="00.00" required>
-                            <!-- hidden field -->
-                            <input  type="hidden" class="form-control" id="double_sumbit_csrf_token" name="double_sumbit_csrf_token">
-                        </div>
-                    </div>
-                        <div style="margin-top:10px" class="form-group">
-                        <div class="col-md-4">
-                        </div>
-                        <div class="col-sm-4 controls">
-                            <button id="btn-bd" class="btn btn-lg btn-primary btn-block btn-signin" value="update" type="submit">Transfer Credit</button>
-                        </div>
-                    </div>
-                    <span id="message"></span>
-                </form>
-            </div>
-        </div>
-    </div>
+				<div style="display:none" id="login-alert" class="alert alert-danger col-sm-12"></div>
+				<form id="changeForm" class="form-horizontal" role="form" method="post" action="validate_csrf.php">
+					<div style="margin-bottom: 25px" class="form-group">
+						<label class="col-md-4 control-label" for="textinput">Account Number</label>
+						<div class="col-md-4">
+							<input type="number" class="form-control" name="account_number" placeholder="15XXXXXXXXXX" required>
+						</div>
+					</div>
+					<div style="margin-bottom: 25px" class="form-group">
+						<label class="col-md-4 control-label" for="textinput">Name</label>
+						<div class="col-md-4">
+							<input type="text" class="form-control" name="name" placeholder="" required>
+						</div>
+					</div>
+					<div style="margin-bottom: 25px" class="form-group">
+						<label class="col-md-4 control-label" for="textinput">Amount</label>
+						<div class="col-md-4">
+							<input type="number" class="form-control" name="amount" placeholder="00.00" required>
+							<!-- hidden field -->
+							<input type="hidden" class="form-control" id="double_sumbit_csrf_token" name="double_sumbit_csrf_token">
+						</div>
+					</div>
+					<div style="margin-top:10px" class="form-group">
+						<div class="col-md-4">
+						</div>
+						<div class="col-sm-4 controls">
+							<button id="btn-bd" class="btn btn-lg btn-primary btn-block btn-signin" value="update" type="submit">Transfer Credit</button>
+						</div>
+					</div>
+					<span id="message"></span>
+				</form>
+			</div>
+		</div>
+	</div>
 </body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script>
-    function getCSRFCookieValue(token_name) {
-        //get csrf cookie value from cookie
-        var cookieValue = document.cookie.match('(^|;)\\s*' + token_name + '\\s*=\\s*([^;]+)');
-        if(cookieValue){
-            return cookieValue.pop();
-        }
-        else{
-            return '';
-        }
-    }
-
-    //set cookie value to hidden field value in the form
-    document.getElementById('double_sumbit_csrf_token').value = getCSRFCookieValue('csrf_token');
+	$(document).ready(function() {
+		$.ajax({
+			url: 'csrf_token.php',
+			type: 'post',
+			async: false,
+			data: {
+                 //pass login session to validate request with the server
+				'csrf_request': '<?php echo $_SESSION["logedIn"] ?>'
+			},
+			success: function(data) {
+				console.log(data); //success message
+			},
+			error: function(xhr, ajaxOptions, thrownError) {
+				console.log("Error on Ajax call :: " + xhr.responseText); //fail message
+			}
+		});
+	});
 </script>
+<script>
+	function getCSRFCookieValue(token_name) {
+		//get csrf cookie value from cookie
+		var cookieValue = document.cookie.match('(^|;)\\s*' + token_name + '\\s*=\\s*([^;]+)');
+		if (cookieValue) {
+			return cookieValue.pop();
+		} else {
+			return '';
+		}
+	}
+
+	//set cookie value to hidden field value in the form
+	document.getElementById('double_sumbit_csrf_token').value = getCSRFCookieValue('csrf_token');
+</script>
+
 </html>

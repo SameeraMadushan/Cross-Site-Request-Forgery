@@ -9,6 +9,7 @@ session_start();
         
             if($_POST['username'] == "sameera" && $_POST['password']=="password"){
                 $_SESSION["logedIn"] =$_POST['username'] .$_POST['password'];
+                generateToken(); //generate token and store it in session variable(memory)
                 header('Location: syncronizer_csrf_token.php');
             }else {
                 echo '<div class="alert alert-danger">Username or Password is Invalid!</div>';
@@ -16,7 +17,10 @@ session_start();
         }
         
 	 }
-	
+//generate token and store it in session variable(memory)
+function generateToken(){
+    return $_SESSION['syncronizer_csrf_token'] = base64_encode(openssl_random_pseudo_bytes(32));
+}
 ?>
 
 <!DOCTYPE html>
