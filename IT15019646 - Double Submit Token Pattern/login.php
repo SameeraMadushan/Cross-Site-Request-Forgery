@@ -2,7 +2,7 @@
 session_start();
     //check whether user is already logged in or not
 	 if (isset($_SESSION["logedIn"])) {
-	 	 	header('Location: double_sumbit_csrf_token.php');
+	 	 	header('Location: double_submit_csrf_token.php');
 	 	 	exit();
 		 }else {
             
@@ -13,7 +13,7 @@ session_start();
 
                     //set session variable
 					$_SESSION["logedIn"] =$_POST['username'] .$_POST['password'];
-                    header('Location: double_sumbit_csrf_token.php');
+                    header('Location: double_submit_csrf_token.php');
                     
 				}else {
                 //display error if incorrect inputs
